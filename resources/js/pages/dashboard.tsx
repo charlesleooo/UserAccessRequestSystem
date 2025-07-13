@@ -5,7 +5,7 @@ import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'ABU IT - Electronic User Access Request (UAR)',
         href: '/dashboard',
     },
 ];

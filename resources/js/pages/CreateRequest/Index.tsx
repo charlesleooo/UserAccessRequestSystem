@@ -1,7 +1,9 @@
-
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,12 +12,120 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index() {
+export default function Index(){
+    const { auth } = usePage<SharedData>().props;
+    
+    const [formData, setFromData] = useState({
+        name: '',
+        department: '',
+        company: '',
+        date: ''
+    });
+
+    // Auto-populate user data and current date
+    useEffect(() => {
+        const currentDate = new Date().toISOString().split('T')[0];
+        setFromData(prev => ({ 
+            ...prev, 
+            name: auth.user.name, // Auto-populate from logged-in user
+            date: currentDate 
+        }));
+    }, [auth.user.name]);
+
+    // Auto-populate user data and current date
+    useEffect(() => {
+        const currentDate = new Date().toISOString().split('T')[0];
+        setFromData(prev => ({ 
+            ...prev, 
+            name: auth.user.name,
+            department: auth.user.department || '', // Use user's department or empty string
+            company: auth.user.company || '', // Use user's company or empty string
+            date: currentDate 
+        }));
+    }, [auth.user]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFromData(prev => ({ ...prev, [name]: value }));
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Request" />
-            <div>
-               
+            <div className="max-w-4xl mx-auto p-6">
+                
+                <form className="space-y-6">
+                    {/* First Row: Name and Date */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                                Name
+                            </label>
+                            <Input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}      
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter your name"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                                Date
+                            </label>
+                            <Input
+                                type="date"
+                                id="date"
+                                name="date"
+                                value={formData.date}
+                                readOnly
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Second Row: Company and Department */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+                                Company
+                            </label>
+                            <Input
+                                type="text"
+                                id="company"
+                                name="company"
+                                value={formData.company}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter your company"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                                Department
+                            </label>
+                            <Input
+                                type="text"
+                                id="department"
+                                name="department"
+                                value={formData.department}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter your department"
+                            />
+                        </div>
+                    </div>
+
+                    <Button
+                        type="submit"
+                        className="w-full text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Submit Request
+                    </Button>
+                </form>
             </div>
         </AppLayout>
     );
