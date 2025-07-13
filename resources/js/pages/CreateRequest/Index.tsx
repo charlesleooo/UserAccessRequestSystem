@@ -48,10 +48,10 @@ export default function Index(){
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Request" />
-            <div className="max-w-4xl mx-auto p-6">
+            <div className="w-full mx-auto p-6">
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     {/* First Row: Name and Date */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                                 Name
@@ -62,7 +62,7 @@ export default function Index(){
                                 name="name"
                                 value={formData.name}      
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter your name"
                             />
                         </div>
@@ -77,13 +77,13 @@ export default function Index(){
                                 name="date"
                                 value={formData.date}
                                 readOnly
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                                className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
 
                     {/* Second Row: Company and Department */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div>
                             <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
                                 Company
@@ -94,7 +94,7 @@ export default function Index(){
                                 name="company"
                                 value={formData.company}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter your company"
                             />
                         </div>
@@ -109,7 +109,7 @@ export default function Index(){
                                 name="department"
                                 value={formData.department}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter your department"
                             />
                         </div>
