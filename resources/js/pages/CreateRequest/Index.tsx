@@ -15,7 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Index(){
     const { auth } = usePage<SharedData>().props;
     
-    const [formData, setFromData] = useState({
+    const [formData, setFormData] = useState({
         name: '',
         department: '',
         company: '',
@@ -25,36 +25,31 @@ export default function Index(){
     // Auto-populate user data and current date
     useEffect(() => {
         const currentDate = new Date().toISOString().split('T')[0];
-        setFromData(prev => ({ 
+        setFormData(prev => ({ 
             ...prev, 
-            name: auth.user.name, // Auto-populate from logged-in user
-            date: currentDate 
-        }));
-    }, [auth.user.name]);
-
-    // Auto-populate user data and current date
-    useEffect(() => {
-        const currentDate = new Date().toISOString().split('T')[0];
-        setFromData(prev => ({ 
-            ...prev, 
-            name: auth.user.name,
-            department: auth.user.department || '', // Use user's department or empty string
-            company: auth.user.company || '', // Use user's company or empty string
+            name: auth.user?.name || '',
+            department: auth.user?.department || '', 
+            company: auth.user?.company || '', 
             date: currentDate 
         }));
     }, [auth.user]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFromData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        // Add your form submission logic here
+        console.log('Form submitted:', formData);
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Request" />
             <div className="max-w-4xl mx-auto p-6">
-                
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     {/* First Row: Name and Date */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>

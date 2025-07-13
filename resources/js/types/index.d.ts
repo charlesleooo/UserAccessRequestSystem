@@ -22,13 +22,11 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-export interface SharedData {
-    name: string;
-    quote: { message: string; author: string };
-    auth: Auth;
-    ziggy: Config & { location: string };
-    sidebarOpen: boolean;
-    [key: string]: unknown;
+export interface SharedData extends Record<string, unknown> {
+    auth: {
+        user: User;
+    };
+    // Add other shared data properties if needed
 }
 
 export interface User {
@@ -39,5 +37,7 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    department?: string;
+    company?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
