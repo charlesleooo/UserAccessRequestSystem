@@ -4,6 +4,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from '@/components/ui/checkbox';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -48,12 +49,12 @@ export default function Index(){
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Request" />
-            <div className="w-full mx-auto p-6">
-                <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="w-full mx-auto p-5">
+                <form className="space-y-2" onSubmit={handleSubmit}>
                     {/* First Row: Name and Date */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-12">
+                        <section>
+                            <label htmlFor="name" className="block text-sm font-bold text-gray-700 mb-2">
                                 Name
                             </label>
                             <Input
@@ -65,10 +66,10 @@ export default function Index(){
                                 className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter your name"
                             />
-                        </div>
+                        </section>
 
-                        <div>
-                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                        <section>
+                            <label htmlFor="date" className="block text-sm font-bold text-gray-700 mb-2">
                                 Date
                             </label>
                             <Input
@@ -79,13 +80,13 @@ export default function Index(){
                                 readOnly
                                 className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
-                        </div>
+                        </section>
                     </div>
 
                     {/* Second Row: Company and Department */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div>
-                            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+                        <section>
+                            <label htmlFor="company" className="block text-sm font-bold text-gray-700 mb-2">
                                 Company
                             </label>
                             <Input
@@ -93,14 +94,14 @@ export default function Index(){
                                 id="company"
                                 name="company"
                                 value={formData.company}
-                                onChange={handleInputChange}
+                                        onChange={handleInputChange}
                                 className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter your company"
                             />
-                        </div>
+                        </section>
 
-                        <div>
-                            <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                        <section>
+                            <label htmlFor="department" className="block text-sm font-bold text-gray-700 mb-2">
                                 Department
                             </label>
                             <Input
@@ -112,9 +113,8 @@ export default function Index(){
                                 className="w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Enter your department"
                             />
-                        </div>
+                        </section>
                     </div>
-
                     <Button
                         type="submit"
                         className="w-full text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500">

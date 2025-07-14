@@ -2,6 +2,9 @@ import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
+import Swal from 'sweetalert2';
+import { router } from '@inertiajs/react'; // Needed to programmatically redirect
+
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -25,11 +28,22 @@ export default function Register() {
     });
 
     const submit: FormEventHandler = (e) => {
-        e.preventDefault();
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
-    };
+    e.preventDefault();
+
+    post(route('register'), {
+        onSuccess: () => {
+            Swal.fire({
+                title: 'Successfully registered!',
+                icon: 'success',
+                confirmButtonText: 'Done',
+                allowOutsideClick: false,
+            }).then(() => {
+                router.visit(route('login')); // Redirect to login after confirmation
+            });
+        },
+        onFinish: () => reset('password', 'password_confirmation'),
+    });
+};
 
     return (
         <AuthLayout title="Create an account" description="Enter your details below to create your account">
