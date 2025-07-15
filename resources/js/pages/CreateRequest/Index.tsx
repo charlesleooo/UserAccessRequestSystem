@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -8,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { Calendar, CalendarIcon, CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { CalendarIcon, CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
@@ -66,6 +67,7 @@ export default function Index() {
     const [accessTypeOpen, setAccessTypeOpen] = React.useState(false);
     const [DurationOpen, setDurationOpen] = React.useState(false);
     const [date, setDate] = React.useState<Date>();
+    const [datePickerOpen, setDatePickerOpen] = React.useState(false);
 
     // Auto-populate user data and current date
     useEffect(() => {
@@ -115,6 +117,7 @@ export default function Index() {
     // Date Picker Handler
     const handleDate = (selectedDate: Date | undefined) => {
         setDate(selectedDate);
+        setDatePickerOpen(false);
 
         if (selectedDate) {
             const formattedDate = format(selectedDate, 'yyyy-MM-dd');
@@ -218,7 +221,7 @@ export default function Index() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-4">
                             {/* Application/System Dropdown */}
                             <div>
                                 <label className="mb-2 block text-sm font-bold text-gray-700">Select Application/System</label>
@@ -327,25 +330,30 @@ export default function Index() {
                                     </PopoverContent>
                                 </Popover>
                             </div>
-                        </div>
-
-                        {/* Date Picker Dropdown */}
-                        <div>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        data-empty={!date}
-                                        className="w-[280px] justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
-                                    >
-                                        <CalendarIcon />
-                                        {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={date} onSelect={setDate} />
-                                </PopoverContent>
-                            </Popover>
+                            {/* Date Picker Dropdown */}
+                            <div>
+                                <label className="mb-2 block text-sm font-bold text-gray-700">Date Needed</label>
+                                <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            data-empty={!date}
+                                            className="w-[280px] justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
+                                        >
+                                            <CalendarIcon />
+                                            {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={date}
+                                            onSelect={handleDate}
+                                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
                     </div>
 
