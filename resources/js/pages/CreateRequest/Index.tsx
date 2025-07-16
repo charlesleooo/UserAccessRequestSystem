@@ -1,6 +1,5 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { CalendarIcon, CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
@@ -58,11 +57,53 @@ export default function Index() {
         username: '',
         application: null as (typeof applications)[0] | null,
         accessType: null as (typeof accessType)[0] | null,
-        Duration: null as (typeof duration)[0] | null,
-        selectedDate: '',
+        duration: null as (typeof duration)[0] | null,
+        dateNeeded: '',
+        justification: '',
     });
 
-    // Separate state for each dropdown
+    // Fixed: State for managing multiple requests with all required fields
+    const [requests, setRequests] = useState([
+        {
+            id: 1,
+            username: '', // Fixed: was 'name' before
+            application: null as (typeof applications)[0] | null,
+            accessType: null as (typeof accessType)[0] | null,
+            duration: null as (typeof duration)[0] | null,
+            startDate: '', // Fixed: added missing field
+            endDate: '', // Fixed: added missing field
+            dateNeeded: '',
+            justification: '',
+        },
+    ]);
+
+    // Function to add new request
+    const addNewRequest = () => {
+        const newRequest = {
+            id: Date.now(),
+            username: '',
+            application: null as (typeof applications)[0] | null,
+            accessType: null as (typeof accessType)[0] | null,
+            duration: null as (typeof duration)[0] | null,
+            startDate: '',
+            endDate: '',
+            dateNeeded: '',
+            justification: '',
+        };
+        setRequests([...requests, newRequest]);
+    };
+
+    // Function to remove request row
+    const removeRequest = (id: number) => {
+        setRequests(requests.filter((request) => request.id !== id));
+    };
+
+    // Function to update request data
+    const updateRequest = (id: number, field: string, value: any) => {
+        setRequests(requests.map((request) => (request.id === id ? { ...request, [field]: value } : request)));
+    };
+
+    // Separate state for each dropdown (you can remove these if not using them)
     const [applicationOpen, setApplicationOpen] = React.useState(false);
     const [accessTypeOpen, setAccessTypeOpen] = React.useState(false);
     const [DurationOpen, setDurationOpen] = React.useState(false);
@@ -81,7 +122,7 @@ export default function Index() {
         }));
     }, [auth.user]);
 
-    //Input change handler
+    // Input change handler
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -106,41 +147,99 @@ export default function Index() {
     };
 
     const handleDurationSelect = (selectedValue: string) => {
-        const selectedDuration = duration.find((duration) => duration.value === selectedValue);
+        const selectedDuration = duration.find((dur) => dur.value === selectedValue);
         setFormData((prev) => ({
             ...prev,
-            Duration: selectedDuration || null,
+            duration: selectedDuration || null, // Fixed: was 'Duration' before
         }));
         setDurationOpen(false);
     };
 
     // Date Picker Handler
-    const handleDate = (selectedDate: Date | undefined) => {
-        setDate(selectedDate);
+    const handleDate = (dateNeeded: Date | undefined) => {
+        setDate(dateNeeded);
         setDatePickerOpen(false);
 
-        if (selectedDate) {
-            const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+        if (dateNeeded) {
+            const formattedDate = format(dateNeeded, 'yyyy-MM-dd');
             setFormData((prev) => ({
                 ...prev,
-                selectedDate: formattedDate,
+                dateNeeded: formattedDate,
             }));
         }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Add your form submission logic here
-        console.log('Form submitted:', formData);
+        // ✅ Simple validation (you can customize this)
+        if (!formData.name || requests.length === 0) {
+            alert('Please fill in your name and at least one request.');
+            return;
+        }
+
+        const hasMissingFields = requests.some((req) => {
+            return (
+                !req.username ||
+                !req.application ||
+                !req.accessType ||
+                !req.duration ||
+                !req.startDate ||
+                !req.endDate ||
+                !req.dateNeeded ||
+                !req.justification
+            );
+        });
+
+        if (hasMissingFields) {
+            alert('Please complete all fields in each request.');
+            return;
+        }
+
+        // ✅ Simulate form submission
+        console.log('📝 Submitted Data:');
+        console.log('Form Info:', formData);
+        console.log('Request Details:', requests);
+
+        alert('Request submitted successfully!');
+
+        // ✅ Optional: Reset form and requests
+        setFormData((prev) => ({
+            ...prev,
+            username: '',
+            application: null,
+            accessType: null,
+            duration: null,
+            dateNeeded: '',
+            justification: '',
+        }));
+
+        setRequests([
+            {
+                id: Date.now(),
+                username: '',
+                application: null,
+                accessType: null,
+                duration: null,
+                startDate: '',
+                endDate: '',
+                dateNeeded: '',
+                justification: '',
+            },
+        ]);
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Request" />
-            <div className="mx-auto w-full p-5">
-                <form className="space-y-2" onSubmit={handleSubmit}>
+
+            <div className="overflow-hidden rounded-lg border border-gray-300 bg-white">
+                {/* Header */}
+                <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 text-center">
+                    <h3 className="text-lg font-semibold text-gray-800">Requestor's Information</h3>
+                </div>
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     {/* First Row: Name and Date */}
-                    <div className="grid grid-cols-2 gap-12 md:grid-cols-2">
+                    <div className="mt-4 mr-4 ml-4 grid grid-cols-2 gap-12 md:grid-cols-2">
                         <div>
                             <label htmlFor="name" className="mb-2 block text-sm font-bold text-gray-700">
                                 Name
@@ -172,10 +271,10 @@ export default function Index() {
                     </div>
 
                     {/* Second Row: Company and Department */}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-12">
+                    <div className="mt-4 mr-4 ml-4 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-12">
                         <div>
                             <label htmlFor="company" className="mb-2 block text-sm font-bold text-gray-700">
-                                Company
+                                Business Unit Entity
                             </label>
                             <Input
                                 type="text"
@@ -204,162 +303,238 @@ export default function Index() {
                         </div>
                     </div>
 
-                    {/* Third Row: Request Details */}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-12">
-                        <div>
-                            <label htmlFor="username" className="mb-2 block text-sm font-bold text-gray-700">
-                                User Name
-                            </label>
-                            <Input
-                                type="text"
-                                id="username"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleInputChange}
-                                className="w-full rounded-md border border-gray-400 px-2 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                placeholder="Enter Username"
-                            />
+                    {/* Request Details Container */}
+                    <div className="overflow-hidden rounded-lg border border-gray-300 bg-white">
+                        {/* Header */}
+                        <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 text-center">
+                            <h3 className="text-lg font-semibold text-gray-800">Access Request Details</h3>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-4">
-                            {/* Application/System Dropdown */}
+                        {/* Table Header */}
+                        <div className="grid grid-cols-9 gap-2 border-b border-gray-200 bg-blue-50 px-4 py-3 text-center text-sm font-medium text-gray-700">
                             <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-700">Select Application/System</label>
-                                <Popover open={applicationOpen} onOpenChange={setApplicationOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" aria-expanded={applicationOpen} className="w-full justify-between">
-                                            {formData.application ? formData.application.label : 'Select application...'}
-                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Search applications..." />
-                                            <CommandList>
-                                                <CommandEmpty>No applications found.</CommandEmpty>
-                                                <CommandGroup>
-                                                    {applications.map((app) => (
-                                                        <CommandItem
-                                                            key={app.value}
-                                                            value={app.value}
-                                                            onSelect={() => handleApplicationSelect(app.value)}
-                                                        >
-                                                            <CheckIcon
-                                                                className={cn(
-                                                                    'mr-2 h-4 w-4',
-                                                                    formData.application?.value === app.value ? 'opacity-100' : 'opacity-0',
-                                                                )}
-                                                            />
-                                                            {app.label}
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
+                                User Name <span className="text-red-500">*</span>
                             </div>
+                            <div>
+                                Application/System <span className="text-red-500">*</span>
+                            </div>
+                            <div>Access Type</div>
+                            <div>
+                                Access Duration <span className="text-red-500">*</span>
+                            </div>
+                            <div>
+                                Start Date <span className="text-red-500">*</span>
+                            </div>
+                            <div>
+                                End Date <span className="text-red-500">*</span>
+                            </div>
+                            <div>
+                                Date Needed <span className="text-red-500">*</span>
+                            </div>
+                            <div>
+                                Justification <span className="text-red-500">*</span>
+                            </div>
+                            <div>Delete</div>
+                        </div>
 
-                            {/* Access Type Dropdown */}
-                            <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-700">Access Type</label>
-                                <Popover open={accessTypeOpen} onOpenChange={setAccessTypeOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" aria-expanded={accessTypeOpen} className="w-full justify-between">
-                                            {formData.accessType ? formData.accessType.label : 'Select access type...'}
-                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandList>
-                                                <CommandGroup>
-                                                    {accessType.map((access) => (
-                                                        <CommandItem
-                                                            key={access.value}
-                                                            value={access.value}
-                                                            onSelect={() => handleAccessTypeSelect(access.value)}
-                                                        >
-                                                            <CheckIcon
-                                                                className={cn(
-                                                                    'mr-2 h-4 w-4',
-                                                                    formData.accessType?.value === access.value ? 'opacity-100' : 'opacity-0',
-                                                                )}
-                                                            />
-                                                            {access.label}
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
+                        {/* Request Rows */}
+                        {requests.map((request) => (
+                            <div key={request.id} className="grid grid-cols-9 items-center gap-2 border-b border-gray-100 px-4 py-3">
+                                {/* User Name */}
+                                <div>
+                                    <Input
+                                        type="text"
+                                        value={request.username}
+                                        onChange={(e) => updateRequest(request.id, 'username', e.target.value)}
+                                        placeholder="User Name"
+                                        className="w-full text-sm"
+                                    />
+                                </div>
+
+                                {/* Application/System */}
+                                <div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-between text-sm">
+                                                {request.application ? request.application.label : 'Select Application'}
+                                                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Search applications..." />
+                                                <CommandList>
+                                                    <CommandEmpty>No applications found.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {applications.map((app) => (
+                                                            <CommandItem
+                                                                key={app.value}
+                                                                value={app.value}
+                                                                onSelect={() => {
+                                                                    updateRequest(request.id, 'application', app);
+                                                                }}
+                                                            >
+                                                                <CheckIcon
+                                                                    className={cn(
+                                                                        'mr-2 h-4 w-4',
+                                                                        request.application?.value === app.value ? 'opacity-100' : 'opacity-0',
+                                                                    )}
+                                                                />
+                                                                {app.label}
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                {/* Access Type */}
+                                <div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-between text-sm">
+                                                {request.accessType ? request.accessType.label : 'Select Type'}
+                                                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandList>
+                                                    <CommandGroup>
+                                                        {accessType.map((access) => (
+                                                            <CommandItem
+                                                                key={access.value}
+                                                                value={access.value}
+                                                                onSelect={() => {
+                                                                    updateRequest(request.id, 'accessType', access);
+                                                                }}
+                                                            >
+                                                                <CheckIcon
+                                                                    className={cn(
+                                                                        'mr-2 h-4 w-4',
+                                                                        request.accessType?.value === access.value ? 'opacity-100' : 'opacity-0',
+                                                                    )}
+                                                                />
+                                                                {access.label}
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                {/* Access Duration */}
+                                <div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-between text-sm">
+                                                {request.duration ? request.duration.label : 'Select Duration'}
+                                                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandList>
+                                                    <CommandGroup>
+                                                        {duration.map((dur) => (
+                                                            <CommandItem
+                                                                key={dur.value}
+                                                                value={dur.value}
+                                                                onSelect={() => {
+                                                                    updateRequest(request.id, 'duration', dur);
+                                                                }}
+                                                            >
+                                                                <CheckIcon
+                                                                    className={cn(
+                                                                        'mr-2 h-4 w-4',
+                                                                        request.duration?.value === dur.value ? 'opacity-100' : 'opacity-0',
+                                                                    )}
+                                                                />
+                                                                {dur.label}
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                {/* Start Date */}
+                                <div>
+                                    <Input
+                                        type="date"
+                                        value={request.startDate}
+                                        onChange={(e) => updateRequest(request.id, 'startDate', e.target.value)}
+                                        className="w-full text-sm"
+                                    />
+                                </div>
+
+                                {/* End Date */}
+                                <div>
+                                    <Input
+                                        type="date"
+                                        value={request.endDate}
+                                        onChange={(e) => updateRequest(request.id, 'endDate', e.target.value)}
+                                        className="w-full text-sm"
+                                    />
+                                </div>
+
+                                {/* Date Needed */}
+                                <div>
+                                    <Input
+                                        type="date"
+                                        value={request.dateNeeded}
+                                        onChange={(e) => updateRequest(request.id, 'dateNeeded', e.target.value)}
+                                        className="w-full text-sm"
+                                    />
+                                </div>
+
+                                {/* Justification */}
+                                <div>
+                                    <Input
+                                        type="text"
+                                        value={request.justification}
+                                        onChange={(e) => updateRequest(request.id, 'justification', e.target.value)}
+                                        placeholder="Click to add justification"
+                                        className="w-full text-sm"
+                                    />
+                                </div>
+
+                                {/* Delete Button */}
+                                <div className="flex justify-center">
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => removeRequest(request.id)}
+                                        disabled={requests.length === 1}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        ×
+                                    </Button>
+                                </div>
                             </div>
-                            {/*Access Duration Dropdown*/}
-                            <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-700">Access Duration</label>
-                                <Popover open={DurationOpen} onOpenChange={setDurationOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button variant="outline" role="combobox" aria-expanded={accessTypeOpen} className="w-full justify-between">
-                                            {formData.Duration ? formData.Duration.label : 'Select access type...'}
-                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandList>
-                                                <CommandGroup>
-                                                    {duration.map((duration) => (
-                                                        <CommandItem
-                                                            key={duration.value}
-                                                            value={duration.value}
-                                                            onSelect={() => handleDurationSelect(duration.value)}
-                                                        >
-                                                            <CheckIcon
-                                                                className={cn(
-                                                                    'mr-2 h-4 w-4',
-                                                                    formData.Duration?.value === duration.value ? 'opacity-100' : 'opacity-0',
-                                                                )}
-                                                            />
-                                                            {duration.label}
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                            {/* Date Picker Dropdown */}
-                            <div>
-                                <label className="mb-2 block text-sm font-bold text-gray-700">Date Needed</label>
-                                <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            data-empty={!date}
-                                            className="w-[280px] justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
-                                        >
-                                            <CalendarIcon />
-                                            {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={date}
-                                            onSelect={handleDate}
-                                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
+                        ))}
+
+                        {/* Add New Request Button */}
+                        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3">
+                            <Button type="button" variant="outline" onClick={addNewRequest} className="w-full">
+                                + Add New Request
+                            </Button>
                         </div>
                     </div>
+                    {/* Submit and Reset Buttons */}
+                    <div className="flex gap-5 pt-4">
+                        <Button type="submit" variant="destructive" className="w-[200px] cursor-pointer">
+                            Reset
+                        </Button>
 
-                    {/* Submit Button */}
-                    <div className="pt-4">
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-[200px] cursor-pointer">
                             Submit Request
                         </Button>
                     </div>
