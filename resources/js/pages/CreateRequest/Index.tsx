@@ -203,16 +203,30 @@ export default function Index() {
         alert('Request submitted successfully!');
 
         // ✅ Optional: Reset form and requests
-        setFormData((prev) => ({
-            ...prev,
+        handleReset();
+    };
+
+    // ✅ Reset function - resets all form data and requests to initial state
+    const handleReset = () => {
+        // Confirmation dialog to prevent accidental resets
+
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        // Reset form data to initial state with current user info
+        setFormData({
+            name: auth.user?.name || '',
+            department: auth.user?.department || '',
+            company: auth.user?.company || '',
+            date: currentDate,
             username: '',
             application: null,
             accessType: null,
             duration: null,
             dateNeeded: '',
             justification: '',
-        }));
+        });
 
+        // Reset requests to initial state with one empty request
         setRequests([
             {
                 id: Date.now(),
@@ -745,7 +759,7 @@ export default function Index() {
                     </form>
                 </div>
                 <div className="flex flex-col gap-4 pt-4 sm:flex-row">
-                    <Button type="submit" variant="destructive" className="w-full cursor-pointer sm:w-[200px]">
+                    <Button type="button" variant="destructive" onClick={handleReset} className="w-full cursor-pointer sm:w-[200px]">
                         Reset
                     </Button>
 
