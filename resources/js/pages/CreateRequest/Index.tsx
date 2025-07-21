@@ -170,7 +170,7 @@ export default function Index() {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         // ✅ Simple validation (you can customize this)
         if (!formData.name || requests.length === 0) {
@@ -277,7 +277,7 @@ export default function Index() {
                                     id="name"
                                     name="name"
                                     value={formData.name}
-                                    onChange={handleInputChange}
+                                    readOnly
                                     className="w-full rounded-md border border-gray-400 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     placeholder="Enter your name"
                                 />
@@ -768,15 +768,15 @@ export default function Index() {
                                 </Button>
                             </div>
                         </div>
-                        {/* Submit and Reset Buttons */}
                     </form>
                 </div>
+                {/* Submit and Reset Buttons */}
                 <div className="flex flex-col gap-4 pt-4 sm:flex-row">
                     <Button type="button" variant="destructive" onClick={handleReset} className="w-full cursor-pointer sm:w-[200px]">
                         Reset
                     </Button>
 
-                    <Button type="submit" onClick={handleSubmit} className="w-full cursor-pointer sm:w-[200px]">
+                    <Button onClick={handleSubmit} className="w-full cursor-pointer sm:w-[200px]">
                         Submit Request
                     </Button>
                 </div>
