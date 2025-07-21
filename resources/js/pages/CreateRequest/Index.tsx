@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -173,7 +174,11 @@ export default function Index() {
         e.preventDefault();
         // ✅ Simple validation (you can customize this)
         if (!formData.name || requests.length === 0) {
-            alert('Please fill in your name and at least one request.');
+            Swal.fire({
+                title: 'Incomplete Form',
+                text: 'Please fill in your name and at least one request.',
+                icon: 'warning',
+            });
             return;
         }
 
@@ -191,7 +196,11 @@ export default function Index() {
         });
 
         if (hasMissingFields) {
-            alert('Please complete all fields in each request.');
+            Swal.fire({
+                title: 'Missing Information',
+                text: 'Please complete all fields in each request.',
+                icon: 'error',
+            });
             return;
         }
 
@@ -200,7 +209,11 @@ export default function Index() {
         console.log('Form Info:', formData);
         console.log('Request Details:', requests);
 
-        alert('Request submitted successfully!');
+        Swal.fire({
+            title: 'Request Submitted',
+            text: 'Request Number: 2025-xxx',
+            icon: 'success',
+        });
 
         // ✅ Optional: Reset form and requests
         handleReset();
@@ -763,7 +776,7 @@ export default function Index() {
                         Reset
                     </Button>
 
-                    <Button type="submit" className="w-full cursor-pointer sm:w-[200px]">
+                    <Button type="submit" onClick={handleSubmit} className="w-full cursor-pointer sm:w-[200px]">
                         Submit Request
                     </Button>
                 </div>
